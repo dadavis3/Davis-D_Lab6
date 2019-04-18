@@ -1,4 +1,4 @@
-# DAVIS, DAVID A.
+# DAVIS, DAVID A.   80610756
 
 # In this lab assignment we are making a maze with disjoint set forest. A random
 # maze was given to us. when we remove a wall, if the cell that were separated by 
@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 from scipy import interpolate 
+import time
+
+
+# -------------------     PRE-METHODS     -------------------------
 
 
 def DisjointSetForest(size):
@@ -32,14 +36,6 @@ def union(S,i,j):
     # Joins i's tree and j's tree, if they are different
     ri = find(S,i) 
     rj = find(S,j)
-    if ri!=rj:
-        S[rj] = ri
-
-def union_c(S,i,j):
-    # Joins i's tree and j's tree, if they are different
-    # Uses path compression
-    ri = find_c(S,i) 
-    rj = find_c(S,j)
     if ri!=rj:
         S[rj] = ri
          
@@ -66,26 +62,30 @@ def NumSets(S):
 
 # -------------------     METHODS FOR THE LAB     ----------------------
 
+# This method is to remove the wall to have the correct path in the cells
 def remove(S, maze_walls,numSets):
     while numSets > 1:
         w = random.choice(maze_walls)
         i = maze_walls.index(w)
-        if find(S,w[0]) != find(S,w[1]):
-            maze_walls.pop(i)
-            union(S,w[0],w[1])
+        if find(S,w[0]) != find(S,w[1]): # If they don't belong to the same root 
+            maze_walls.pop(i)           # Pops into the sta
+            union(S,w[0],w[1])         # Normal union
             numSets -= 1
     return w
 
+# This method is to remove the wall to have the correct path in the 
+# cells whenever it has to be compressed  
 def removeCompressed(S, maze_walls,numSets):
     while numSets > 1:
-        w = random.choice(maze_walls)
+        w = random.choice(maze_walls) 
         i = maze_walls.index(w)
-        if find(S,w[0]) != find(S,w[1]):
-            maze_walls.pop(i)
-            union_by_size(S,w[0],w[1])
+        if find(S,w[0]) != find(S,w[1]): # If they don't belong to the same root
+            maze_walls.pop(i)           # Pops in the stack
+            union_by_size(S,w[0],w[1]) # We union by size  
             numSets -= 1
     return w
-    
+
+# This method the maze    
 def draw_maze(walls,maze_rows,maze_cols,cell_nums=False):
     fig, ax = plt.subplots()
     for w in walls:
@@ -112,6 +112,8 @@ def draw_maze(walls,maze_rows,maze_cols,cell_nums=False):
     ax.axis('off') 
     ax.set_aspect(1.0)
 
+
+# This method creates a list with all the walls in the maze
 def wall_list(maze_rows, maze_cols):
     # Creates a list with all the walls in the maze
     w =[]
@@ -125,19 +127,22 @@ def wall_list(maze_rows, maze_cols):
     return w
 
 plt.close("all") 
-maze_rows = 5
-maze_cols = 10
+maze_rows = 50
+maze_cols = 55
 
-#numSet = setAmount(S)
 walls = wall_list(maze_rows,maze_cols)
-#numSet = setAmount(S)
-
 
 S = DisjointSetForest(maze_rows * maze_cols)
-#numSet = setAmount(S)
-remove(S,walls,NumSets(S))
-#removeCompressed(S,walls,numSet)
 
+# runs the remove() method
+#time1 = time.time()
+#remove(S,walls,NumSets(S))
+#print("--- %s seconds ---" % (time.time() - time1))
+
+# Runs the removeCompressed method
+time1 = time.time()
+removeCompressed(S,walls,NumSets(S))
+print("--- %s seconds ---" % (time.time() - time1))
 
 
 draw_maze(walls,maze_rows,maze_cols,cell_nums=True) 
